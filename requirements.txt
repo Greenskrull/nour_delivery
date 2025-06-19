@@ -6,3 +6,4 @@ stripe
 django-anymail[sendgrid]
 mapbox
 dj-database-url
+dj-database-url
