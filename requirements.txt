@@ -1,0 +1,7 @@
+django>=4.2
+djangorestframework
+channels
+psycopg2-binary
+stripe
+django-anymail[sendgrid]
+mapbox
