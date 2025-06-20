@@ -3,15 +3,22 @@ from django.contrib.auth import logout
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from rest_framework import viewsets, permissions
+from django.contrib.sites.shortcuts import get_current_site
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+from django.core.mail import EmailMessage
+from .tokens import account_activation_token
 from .models import Restaurant, MenuItem, Order, Review
 from .serializers import (
     RestaurantSerializer, MenuItemSerializer,
     OrderSerializer, ReviewSerializer
 )
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import redirect, render, get_object_or_404, HttpResponse
 from django.views.decorators.http import require_POST
 from .cart import Cart
 from .models import MenuItem
+from .forms import SignupForm
 
 class RestaurantViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Restaurant.objects.all()
@@ -71,22 +78,51 @@ def restaurant_detail(request, pk):
 
 def signup(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('checkout')
+        form = SignupForm(request.POST)
+            user = form.save(commit=False)
+            user.is_active = False    # Deactivate until verified
+            user.save()
+
+            # Send activation email
+            current_site = get_current_site(request)
+            subject = "Activate your Nour account"
+            message = render_to_string("registration/activation_email.html", {
+                "user": user,
+                "domain": current_site.domain,
+                "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                "token": account_activation_token.make_token(user),
+            })
+            email = EmailMessage(subject, message, to=[user.email])
+            email.send()
+
+            return render(request, "registration/activation_sent.html")
     else:
-        form = UserCreationForm()
+        form = SignupForm()
     return render(request, 'registration/signup.html', {'form': form})
+
+def activate(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user and account_activation_token.check_token(user, token):
+        user.is_active = True
+        user.save()
+        login(request, user)
+        return redirect('checkout')
+    else:
+        return HttpResponse('Activation link is invalid!', status=400)
 
 def logout_view(request):
     """Log out the user and redirect to home (supports GET)."""
     logout(request)
     return redirect('home')
-    
+
 @login_required
 def checkout(request):
-    # TODO: integrate Stripe here
+    if not request.user.is_active:
+        return redirect('login')    # TODO: integrate Stripe here
     return render(request, 'checkout.html', {})
 
