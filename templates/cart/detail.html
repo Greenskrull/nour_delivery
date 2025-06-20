@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Your Cart – Nour{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <h2 class="mb-4 text-gold">Your Cart</h2>
+  <div class="card bg-secondary text-light shadow-sm">
+    <ul class="list-group list-group-flush">
+      {% if cart %}
+        {% for item in cart %}
+        <li class="list-group-item bg-secondary d-flex justify-content-between align-items-center">
+          <div>
+            <strong>{{ item.menu_item.name }}</strong><br>
+            <small>{{ item.quantity }} × ₦{{ item.price }}</small>
+          </div>
+          <form method="post" action="{% url 'cart_remove' item.menu_item.id %}">
+            {% csrf_token %}
+            <button class="btn btn-sm btn-outline-light">Remove</button>
+          </form>
+        </li>
+        {% endfor %}
+      {% else %}
+        <li class="list-group-item bg-secondary text-center">Your cart is empty.</li>
+      {% endif %}
+    </ul>
+    {% if cart %}
+    <div class="card-footer bg-secondary d-flex justify-content-between align-items-center">
+      <span class="fs-5">Total:</span>
+      <strong class="fs-5">₦{{ cart.get_total_price }}</strong>
+    </div>
+    <div class="card-body">
+      <a href="{% url 'home' %}" class="btn btn-outline-light me-2">Continue Shopping</a>
+      {% if user.is_authenticated %}
+  <a href="{% url 'checkout' %}" class="btn btn-gold">Proceed to Checkout</a>
+{% else %}
+  <a href="{% url 'login' %}?next={% url 'checkout' %}" class="btn btn-gold">
+    Log in to Checkout
+  </a>
+{% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

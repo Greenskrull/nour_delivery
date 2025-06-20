@@ -1,3 +1,6 @@
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
 from rest_framework import viewsets, permissions
 from .models import Restaurant, MenuItem, Order, Review
 from .serializers import (
@@ -65,6 +68,19 @@ def restaurant_detail(request, pk):
         'menu_items': menu_items
     })
 
+def signup(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('checkout')
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/signup.html', {'form': form})
+
+@login_required(login_url='login')
 def checkout(request):
     # TODO: integrate Stripe here
     return render(request, 'checkout.html', {})
+
