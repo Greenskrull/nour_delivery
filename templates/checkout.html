@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Checkout – Nour{% endblock %}
+
+{% block content %}
+<div class="container my-5 text-center">
+  <h1 class="mb-4 text-gold">Checkout</h1>
+  <p>This is where your payment form will go.</p>
+  <a href="{% url 'cart_detail' %}" class="btn btn-outline-light mt-3">Back to Cart</a>
+</div>
+{% endblock %}
