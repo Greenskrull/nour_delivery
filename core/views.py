@@ -1,4 +1,5 @@
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import logout
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from rest_framework import viewsets, permissions
@@ -79,7 +80,12 @@ def signup(request):
         form = UserCreationForm()
     return render(request, 'registration/signup.html', {'form': form})
 
-@login_required(login_url='login')
+def logout_view(request):
+    """Log out the user and redirect to home (supports GET)."""
+    logout(request)
+    return redirect('home')
+    
+@login_required
 def checkout(request):
     # TODO: integrate Stripe here
     return render(request, 'checkout.html', {})
