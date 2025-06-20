@@ -10,7 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import dj_database_url
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +27,8 @@ SECRET_KEY = 'django-insecure-d)=&of#=bag*bjzuf+4vqcinxcnyrk^*^sf)*q(op9$n&2e1ne
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# Session cart settings
+CART_SESSION_ID = 'cart'
 
 
 # Application definition
@@ -37,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'core',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -74,11 +79,12 @@ WSGI_APPLICATION = 'nour_project.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f"postgres://postgres:postgres@db:5432/nour_db",
+        conn_max_age=600,
+    )
 }
+
 
 
 # Password validation
@@ -99,6 +105,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost').split()
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
