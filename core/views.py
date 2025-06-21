@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import logout
 from django.contrib.auth import login
@@ -9,16 +10,19 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.core.mail import EmailMessage
 from .tokens import account_activation_token
-from .models import Restaurant, MenuItem, Order, Review
+from .models import Restaurant, MenuItem, Order, Review, OrderItem
 from .serializers import (
     RestaurantSerializer, MenuItemSerializer,
     OrderSerializer, ReviewSerializer
 )
+from django.contrib import messages
 from django.shortcuts import redirect, render, get_object_or_404, HttpResponse
 from django.views.decorators.http import require_POST
 from .cart import Cart
 from .models import MenuItem
 from .forms import SignupForm
+from django.core.mail import send_mail
+from django.urls import reverse
 
 class RestaurantViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Restaurant.objects.all()
@@ -79,8 +83,9 @@ def restaurant_detail(request, pk):
 def signup(request):
     if request.method == 'POST':
         form = SignupForm(request.POST)
+        if form.is_valid():
             user = form.save(commit=False)
-            user.is_active = False    # Deactivate until verified
+            user.is_active = False
             user.save()
 
             # Send activation email
@@ -94,12 +99,13 @@ def signup(request):
             })
             email = EmailMessage(subject, message, to=[user.email])
             email.send()
-
+            messages.success(request, "Check your email for the activation link.")
             return render(request, "registration/activation_sent.html")
+        else:
+            messages.error(request, "Please fix the errors below.")
     else:
         form = SignupForm()
     return render(request, 'registration/signup.html', {'form': form})
-
 def activate(request, uidb64, token):
     try:
         uid = urlsafe_base64_decode(uidb64).decode()
@@ -122,7 +128,43 @@ def logout_view(request):
 
 @login_required
 def checkout(request):
-    if not request.user.is_active:
-        return redirect('login')    # TODO: integrate Stripe here
-    return render(request, 'checkout.html', {})
+    cart = Cart(request)
+    if request.method == 'POST':
+        address = request.POST['address']
+        phone   = request.POST['phone']
+        # Create the Order
+        order = Order.objects.create(
+            user=request.user,
+            restaurant=Restaurant.objects.first(),  # only Nour
+            status='PENDING',
+            total=cart.get_total_price(),
+        )
+        # Create OrderItems
+        for item in cart:
+            OrderItem.objects.create(
+                order=order,
+                menu_item=item['menu_item'],
+                quantity=item['quantity'],
+                price=item['price'],
+            )
+        # Clear cart
+        cart.clear()
 
+        # Send confirmation email
+        subject = f"Nour Order Confirmation #{order.id}"
+        message = render_to_string('emails/order_confirmation.txt', {
+            'user': request.user,
+            'order': order,
+        })
+        send_mail(subject, message, DEFAULT_FROM_EMAIL,
+                  [request.user.email])
+
+        return redirect('order_success', order_id=order.id)
+
+    # GET: render form
+    return render(request, 'checkout.html', {'cart': cart})
+
+@login_required
+def order_success(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    return render(request, 'order_success.html', {'order': order})
