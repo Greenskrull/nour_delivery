@@ -2,9 +2,27 @@
 {% block title %}Checkout – Nour{% endblock %}
 
 {% block content %}
-<div class="container my-5 text-center">
-  <h1 class="mb-4 text-gold">Checkout</h1>
-  <p>This is where your payment form will go.</p>
-  <a href="{% url 'cart_detail' %}" class="btn btn-outline-light mt-3">Back to Cart</a>
+<div class="container my-5" style="max-width:600px;">
+  <h2 class="text-gold mb-4">Checkout</h2>
+  <form method="post" action="{% url 'checkout' %}">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="id_address" class="form-label">Delivery Address</label>
+      <input type="text" name="address" id="id_address"
+             class="form-control bg-secondary text-light" required>
+    </div>
+    <div class="mb-3">
+      <label for="id_phone" class="form-label">Phone Number</label>
+      <input type="tel" name="phone" id="id_phone"
+             class="form-control bg-secondary text-light" required>
+    </div>
+    <div class="mb-4">
+      <strong>Order Total: ₦{{ cart.get_total_price }}</strong>
+    </div>
+    <button type="submit" class="btn btn-gold w-100">Place Order</button>
+  </form>
+  <p class="mt-4 text-center">
+    <a href="{% url 'order_list' %}" class="text-gold">View My Orders</a>
+  </p>
 </div>
 {% endblock %}

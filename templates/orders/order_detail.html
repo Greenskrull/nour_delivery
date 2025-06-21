@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Order #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="container my-5" style="max-width:600px;">
+  <h2 class="text-gold mb-3">Order #{{ order.id }}</h2>
+  <p><strong>Placed on:</strong> {{ order.created_at|date:"M j, Y H:i" }}</p>
+  <p><strong>Status:</strong> <span class="badge bg-gold">{{ order.status }}</span></p>
+  <hr class="bg-light">
+  <h5>Items</h5>
+  <ul class="list-group mb-3">
+    {% for item in order.items.all %}
+    <li class="list-group-item bg-secondary text-light d-flex justify-content-between">
+      <div>
+        {{ item.quantity }} × {{ item.menu_item.name }}
+      </div>
+      <div>₦{{ item.price }}</div>
+    </li>
+    {% endfor %}
+  </ul>
+  <div class="d-flex justify-content-between fs-5">
+    <strong>Total:</strong>
+    <strong>₦{{ order.total }}</strong>
+  </div>
+  <a href="{% url 'order_list' %}" class="btn btn-outline-light mt-4">Back to Orders</a>
+</div>
+{% endblock %}

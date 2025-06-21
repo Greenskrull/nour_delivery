@@ -1,0 +1,73 @@
+{% extends "base.html" %} {% load static %}
+
+{% block title %}{{ restaurant.name }} – Menu{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="row">
+    <!-- Menu Items -->
+    <div class="col-lg-8">
+      <!-- Category Nav (if you add categories later) -->
+      <nav class="nav mb-4">
+        <a class="nav-link text-gold active" href="#">All</a>
+        <!-- Add more categories here -->
+      </nav>
+
+      <div class="row g-3">
+        {% for item in menu_items %}
+        <div class="col-sm-6">
+          <div class="card bg-secondary text-light h-100 shadow-sm">
+            <img src="{% static 'img/placeholder_dish.jpg' %}" class="card-img-top" alt="{{ item.name }}">
+            <div class="card-body d-flex flex-column">
+              <h5>{{ item.name }}</h5>
+              <p class="text-truncate">{{ item.description }}</p>
+              <div class="mt-auto d-flex justify-content-between align-items-center">
+                <span class="fw-bold">₦{{ item.price }}</span>
+                <form method="post" action="{% url 'cart_add' item.id %}">
+                  {% csrf_token %}
+                  <button class="btn btn-sm btn-gold">Add</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Sticky Cart Sidebar -->
+    <div class="col-lg-4">
+      <div class="card bg-secondary text-light sticky-top" style="top: 100px;">
+        <div class="card-header text-gold">Your Cart</div>
+        <ul class="list-group list-group-flush">
+          {% if cart %}
+            {% for item in cart %}
+            <li class="list-group-item bg-secondary d-flex justify-content-between align-items-center">
+              <div>
+                <strong>{{ item.menu_item.name }}</strong><br>
+                <small>{{ item.quantity }} × ₦{{ item.price }}</small>
+              </div>
+              <form method="post" action="{% url 'cart_remove' item.menu_item.id %}">
+                {% csrf_token %}
+                <button class="btn btn-sm btn-outline-light">×</button>
+              </form>
+            </li>
+            {% endfor %}
+          {% else %}
+            <li class="list-group-item bg-secondary text-center">Cart is empty</li>
+          {% endif %}
+        </ul>
+        {% if cart %}
+        <div class="card-footer bg-secondary">
+          <div class="d-flex justify-content-between">
+            <span>Total:</span>
+            <strong>₦{{ cart.get_total_price }}</strong>
+          </div>
+          <a href="{% url 'checkout' %}" class="btn btn-gold w-100 mt-3">Checkout</a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

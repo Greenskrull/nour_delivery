@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import logout
@@ -156,8 +157,7 @@ def checkout(request):
             'user': request.user,
             'order': order,
         })
-        send_mail(subject, message, DEFAULT_FROM_EMAIL,
-                  [request.user.email])
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [request.user.email])
 
         return redirect('order_success', order_id=order.id)
 
@@ -168,3 +168,14 @@ def checkout(request):
 def order_success(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
     return render(request, 'order_success.html', {'order': order})
+
+@login_required
+def order_list(request):
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'orders/order_list.html', {'orders': orders})
+
+@login_required
+def order_detail(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    return render(request, 'orders/order_detail.html', {'order': order})
+

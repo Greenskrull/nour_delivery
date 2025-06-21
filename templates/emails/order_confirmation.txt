@@ -1,0 +1,14 @@
+Hi {{ user.username }},
+
+Thanks for your order #{{ order.id }}! Here are the details:
+
+{% for item in order.items.all %}
+• {{ item.quantity }} × {{ item.menu_item.name }} – ₦{{ item.price }}
+{% endfor %}
+
+Total: ₦{{ order.total }}
+
+We’ll notify you when your order status changes.
+
+Cheers,
+Nour Delivery

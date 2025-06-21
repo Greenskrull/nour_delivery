@@ -1,0 +1,122 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ request.COOKIES.theme|default:'dark' }}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Nour Delivery{% endblock %}</title>
+
+  <!-- Bootstrap CSS -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-…"
+    crossorigin="anonymous"
+  />
+
+  <!-- Bootstrap Icons -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    rel="stylesheet"
+  />
+
+  <!-- Material Icons -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+    rel="stylesheet"
+  />
+
+  <!-- Custom CSS -->
+  <link href="{% static 'css/custom.css' %}" rel="stylesheet" />
+</head>
+<body class="bg-dark text-light">
+
+  <!-- Navbar -->
+  <nav id="mainNav" class="navbar navbar-expand-lg navbar-dark fixed-top py-2">
+    <div class="container-fluid">
+      <a class="navbar-brand text-gold fw-bold" href="{% url 'home' %}">
+        <span class="material-symbols-outlined align-middle">restaurant_menu</span>
+        Nour
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+              data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarContent">
+        <!-- Search Bar -->
+        <form class="d-flex ms-auto me-3" method="get" action="{% url 'restaurant_detail' 1 %}">
+          <input
+            class="form-control form-control-sm me-2 bg-secondary border-0 text-light"
+            type="search"
+            name="q"
+            placeholder="Search dishes…"
+            aria-label="Search"
+          />
+          <button class="btn btn-sm btn-gold" type="submit">
+            <i class="bi bi-search"></i>
+          </button>
+        </form>
+
+        <ul class="navbar-nav">
+          <!-- Cart Icon -->
+          <li class="nav-item me-3">
+            <a class="nav-link position-relative" href="{% url 'cart_detail' %}">
+              <i class="bi bi-cart-fill fs-4"></i>
+              {% if request.session.cart %}
+                <span class="badge bg-gold rounded-pill position-absolute top-0 start-100 translate-middle">
+                  {{ request.session.cart|length }}
+                </span>
+              {% endif %}
+            </a>
+          </li>
+        
+          <!-- Theme Toggle -->
+          <li class="nav-item me-3">
+            <button id="themeToggle" class="btn btn-outline-gold btn-sm">
+              <i class="bi bi-moon-stars-fill"></i>
+            </button>
+          </li>
+        
+          {% if user.is_authenticated %}
+            <!-- Logout Link -->
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+            </li>
+          {% else %}
+            <!-- Login & Signup Links -->
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'login' %}">Login</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'signup' %}">Sign Up</a>
+            </li>
+          {% endif %}
+        </ul>
+        
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="pt-5 mt-4">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-secondary text-center text-light py-3 mt-auto">
+    <small>&copy; {{ now.year }} Nour Delivery.</small>
+  </footer>
+
+  <!-- Bootstrap Bundle JS -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-…"
+    crossorigin="anonymous"
+  ></script>
+
+  <!-- Custom JS -->
+  <script src="{% static 'js/custom.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

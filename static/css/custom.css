@@ -1,0 +1,92 @@
+:root {
+    --bg: #fff;
+    --fg: #111;
+    --card-bg: #f9f9f9;
+    --navbar-bg: rgba(255,255,255,0.8);
+  }
+  
+  html[data-theme="dark"] {
+    --bg: #121212;
+    --fg: #f5f5f5;
+    --card-bg: #1f1f1f;
+    --navbar-bg: rgba(18,18,18,0.8);
+  }
+  
+  body {
+    background-color: var(--bg);
+    color: var(--fg);
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  /* Navbar styling and scroll effect */
+  #mainNav {
+    background: transparent;
+    transition: background var(--transition), box-shadow var(--transition);
+  }
+  #mainNav.scrolled {
+    background: var(--navbar-bg);  }
+  
+  /* Brand & buttons */
+  .text-gold,
+  .btn-gold {
+    color: var(--gold) !important;
+    border-color: var(--gold) !important;
+    transition: background-color var(--transition), color var(--transition);
+  }
+  .btn-gold {
+    background-color: var(--gold);
+  }
+  .btn-gold:hover {
+    background-color: #d49a3c;
+    color: var(--text-light);
+  }
+  
+  /* Cards */
+  .card {
+    background: var(--card-bg);
+    border: none;
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  }
+  
+  /* Hero overlay */
+  .hero {
+    position: relative;
+    height: 70vh;
+    overflow: hidden;
+  }
+  .hero img {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+    filter: brightness(60%);
+  }
+  .hero-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  /* Search input */
+  .form-control.bg-secondary {
+    background-color: #2a2a2a !important;
+  }
+  
+  /* Sticky cart */
+  .sticky-top {
+    top: 100px;
+  }
+  
+  /* Utility */
+  .text-truncate {
+    display: inline-block;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  

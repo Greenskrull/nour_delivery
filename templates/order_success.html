@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Order #{{ order.id }} Confirmed{% endblock %}
+{% block content %}
+<div class="container my-5 text-center">
+  <h2 class="text-gold mb-3">Thank you, {{ request.user.username }}!</h2>
+  <p>Your order <strong>#{{ order.id }}</strong> has been placed.</p>
+  <p>Total: ₦{{ order.total }}</p>
+  <a href="{% url 'home' %}" class="btn btn-outline-light mt-4">Back to Home</a>
+</div>
+{% endblock %}

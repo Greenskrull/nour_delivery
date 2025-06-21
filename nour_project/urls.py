@@ -9,6 +9,8 @@ from core.views import (
     signup, logout_view,  # import signup directly
 )
 from rest_framework.routers import DefaultRouter
+from django.conf import settings
+from django.conf.urls.static import static
 
 router = DefaultRouter()
 router.register(r'restaurants', RestaurantViewSet, basename='restaurant')
@@ -33,3 +35,5 @@ urlpatterns = [
          signup, 
          name='signup'),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
